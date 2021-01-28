@@ -13,6 +13,9 @@ using System.Linq;
 using System.Windows.Forms;
 using LibGxFormat.ModelLoader;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using Extensions.Data;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace GxModelViewer
 {
@@ -62,6 +65,8 @@ namespace GxModelViewer
 
         /// <summary>Path to the currently loaded .GMA file, or null if there isn't any.</summary>
         string gmaPath;
+        /// <summary>Path to the currently export path.</summary>
+        string pngPath;
         /// <summary>Instance of the currently loaded .GMA file, or null if there isn't any.</summary>
         Gma gma;
         /// <summary>true if the .GMA file has been modified and the changes have not yet been saved.</summary>
@@ -469,6 +474,45 @@ namespace GxModelViewer
 
             haveUnsavedGmaChanges = false;
             UpdateModelButtons();
+            return true;
+        }
+
+        private ulong GetHash(TplTexture texture, int level, int levelWidth, int levelHeight)
+        {
+            // Create the new bitmap where the texture will be decoded
+            Bitmap bmp = new Bitmap(levelWidth, levelHeight);
+            BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, levelWidth, levelHeight),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
+
+            // Decode the data of the texture level
+            byte[] levelData = texture.DecodeLevelToRGBA8(level, bmpData.Stride);
+
+            return XXHash.XXH64(levelData);
+        }
+
+        public bool SavePngFiles(string path)
+        {
+            int i = 0;
+            int level = 0; // We only do level 0, aldus Redah
+            foreach (var texture in tpl)
+            {
+                var bitmap = texture.DecodeLevelToBitmap(level);
+                
+                Console.WriteLine("Writing texture with level 0 of " + texture.LevelCount + " " + bitmap.Width + " x " + bitmap.Height);
+
+                var levelWidth = texture.WidthOfLevel(level);
+                var levelHeight = texture.HeightOfLevel(level);
+
+                var hash = GetHash(texture, 0, levelWidth, levelHeight);
+
+                var hexHash = string.Format("{0:x}", hash);
+
+                var filename = $"tex1_{levelWidth}x{levelHeight}_{hexHash}_{(int)texture.Format}.png";
+                var file = Path.Combine(path, filename); 
+
+                bitmap.Save(file, ImageFormat.Png);
+            }
+
             return true;
         }
 

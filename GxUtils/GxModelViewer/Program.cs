@@ -31,6 +31,7 @@ namespace GxModelViewer
         private const string EXPORT_OBJ_MTL_FLAG = "-exportObjMtl";
         private const string EXPORT_TPL_FLAG = "-exportTpl";
         private const string EXPORT_GMA_FLAG = "-exportGma";
+        private const string EXPORT_PNG_FLAG = "-exportPng";
         private const string SET_ALL_MIPMAPS = "-setAllMipmaps";
 
         // Interactive Mode Only
@@ -42,6 +43,8 @@ namespace GxModelViewer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ModelViewer modelViewer = new ModelViewer();
+            
+          //  args = new String[] { "-game","fzero", "-importTpl", "D:\\Tools\\GxTools\\bmp_conf,lz.tpl", "-exportPng", "D:\\Tools\\GxTools\\result" };
             
             if (args.Length == 0)
             {
@@ -126,7 +129,7 @@ namespace GxModelViewer
                                         game = LibGxFormat.GxGame.SuperMonkeyBallDX;
                                         valid = true;
                                         break;
-                                    case "fxero":
+                                    case "fzero":
                                         game = LibGxFormat.GxGame.FZeroGX;
                                         valid = true;
                                         break;
@@ -348,6 +351,29 @@ namespace GxModelViewer
                             WriteCommandError(flag, "Not enough args for command");
                         }
                         break;
+                    case EXPORT_PNG_FLAG:
+                        if (i < flags.Length - 1)
+                        {
+                            try
+                            {
+                                modelViewer.SavePngFiles(flags[i + 1]);
+                                WriteCommandSuccess(flag);
+                            }
+                            catch (Exception ex)
+                            {
+                                WriteCommandError(flag, "Error saving the PNG files->" + ex.Message);
+                            }
+                            finally
+                            {
+                                // Skip the command argument
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            WriteCommandError(flag, "Not enough args for command");
+                        }
+                        break;
                     case SET_ALL_MIPMAPS:
                         if (i < flags.Length - 1)
                         {
@@ -419,6 +445,7 @@ namespace GxModelViewer
             Console.WriteLine("\t-importGma <model>\t\tImports the designated .gma file.");
             Console.WriteLine("\t-exportObjMtl <model>\t\tExports the loaded model as a .obj/.mtl file.");
             Console.WriteLine("\t-exportTpl <textures>\t\tExports the loaded textures as a .tpl file.");
+            Console.WriteLine("\t-exportPng <folder>\t\tExports the loaded textures as PNGs to folder.");
             Console.WriteLine("\t-exportGma <model>\t\tExports the loaded model as a .gma file.");
             Console.WriteLine("\t-setAllMipmaps <num>\t\tSets the number of mipmaps for every loaded texture to <num>.");
             Console.WriteLine("\t\t\t\t\tTexture files should be loaded before calling this flag.");

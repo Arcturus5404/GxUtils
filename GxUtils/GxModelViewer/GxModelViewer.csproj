@@ -38,6 +38,10 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Extensions.Data.xxHash, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\xxHash.NET.1.0.2\lib\net40\Extensions.Data.xxHash.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\OpenTK.dll</HintPath>
     </Reference>
@@ -123,6 +127,9 @@
     <EmbeddedResource Include="ObjMtlWarningLogDialog.resx">
       <DependentUpon>ObjMtlWarningLogDialog.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
